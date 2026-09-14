@@ -1,54 +1,35 @@
 /*
- * Copyright (c) 2020, NVIDIA CORPORATION.
+ * fork: NVTX RANGES COMPILED OUT.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * CUDA 12.8 ships its own nvtx3 headers in an inline versioned namespace. The vendored ~2020 copy
+ * in this directory declares the same symbols unversioned, so with both in scope every reference
+ * (nvtx3::domain, nvtx3::category, nvtx3::event_attributes, nvtx3::domain_thread_range) is
+ * ambiguous -- 48 errors on the first .cu that touches the concurrent hash map.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * CUDF_FUNC_RANGE() only pushes a named range onto an NVTX timeline for Nsight. Nothing in
+ * MinkowskiEngine reads that timeline, and no numeric result depends on it. Rather than port a
+ * profiler shim we do not use, the whole thing becomes a no-op that keeps the public surface.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Original preserved as ranges.hpp.orig.
  */
-
 #pragma once
 
-#include "nvtx3.hpp"
-
 namespace cudf {
-/**
- * @brief Tag type for libcudf's NVTX domain.
- *
- */
+
+// Kept so existing template arguments (e.g. registered_message<cudf::libcudf_domain>) still name a
+// real type if any survive; it carries no behaviour.
 struct libcudf_domain {
-  static constexpr char const* name{"libcudf"};  ///< Name of the libcudf domain
+  static constexpr char const *name{"libcudf"};
 };
 
-/**
- * @brief Alias for an NVTX range in the libcudf domain.
- *
- */
-using thread_range = ::nvtx3::domain_thread_range<libcudf_domain>;
+// Scope-guard shaped no-op: constructing one is free and destroying it does nothing, so any
+// remaining `cudf::thread_range r{...};` site keeps compiling with identical semantics.
+struct thread_range {
+  thread_range() = default;
+  template <typename... Args>
+  explicit thread_range(Args &&...) {}
+};
 
 }  // namespace cudf
 
-/**
- * @brief Convenience macro for generating an NVTX range in the `libcudf` domain
- * from the lifetime of a function.
- *
- * Uses the name of the immediately enclosing function returned by `__func__` to
- * name the range.
- *
- * Example:
- * ```
- * void some_function(){
- *    CUDF_FUNC_RANGE();
- *    ...
- * }
- * ```
- *
- */
-#define CUDF_FUNC_RANGE() NVTX3_FUNC_RANGE_IN(cudf::libcudf_domain)
+#define CUDF_FUNC_RANGE() do {} while (0)

@@ -28,6 +28,12 @@
 #define KERNEL_MAP_CUH
 
 #include "3rdparty/hash/hash_allocator.cuh"
+// fork: explicit Thrust includes (CCCL 2.x no longer provides these transitively)
+// fork p08: explicit thrust tuple/zip_iterator (transitive-only under CCCL 2.x)
+#include <thrust/tuple.h>
+#include <thrust/iterator/zip_iterator.h>
+#include <thrust/host_vector.h>
+#include <thrust/reduce.h>
 
 #include "coordinate_map_functors.cuh"
 #include "storage.cuh"

@@ -107,9 +107,8 @@ struct insert_coordinate {
 };
 
 template <typename coordinate_type, typename map_type>
-struct find_coordinate
-    : public thrust::unary_function<uint32_t,
-                                    thrust::pair<uint32_t, uint32_t>> {
+struct find_coordinate {   // fork p07: dropped THRUST_DEPRECATED thrust::unary_function base
+                            // (removed in newer CCCL; thrust::transform needs none of its typedefs)
   using mapped_type = typename map_type::mapped_type;
   using return_type = thrust::pair<mapped_type, mapped_type>;
 

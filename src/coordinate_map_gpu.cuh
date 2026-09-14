@@ -136,9 +136,17 @@ public:
       LOG_DEBUG("Reserve map of",
                 compute_hash_table_size(size, m_hashtable_occupancy),
                 "for concurrent_unordered_map of size", size);
-      m_map = map_type::create(
-          compute_hash_table_size(size, m_hashtable_occupancy),
-          m_unused_element, m_unused_key, m_hasher, m_equal, m_map_allocator);
+      // fork: do NOT assign the unique_ptr directly into m_map. That selects
+      // __shared_ptr(unique_ptr&&), whose body calls std::__to_address(), which nvcc cannot
+      // disambiguate against GCC 13's constrained overload (error in shared_ptr_base.h:1561).
+      // Constructing from (raw pointer, deleter) is equivalent and avoids that instantiation.
+      {
+        auto map_owner = map_type::create(
+            compute_hash_table_size(size, m_hashtable_occupancy),
+            m_unused_element, m_unused_key, m_hasher, m_equal, m_map_allocator);
+        auto map_deleter = map_owner.get_deleter();   // copy BEFORE release(): arg order is unspecified
+        m_map = std::shared_ptr<map_type>(map_owner.release(), map_deleter);
+      }
       LOG_DEBUG("Done concurrent_unordered_map creation");
       CUDA_TRY(cudaStreamSynchronize(0));
       m_capacity = size;

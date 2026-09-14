@@ -27,6 +27,8 @@
 #define STORAGE_CUH
 
 #include "utils.hpp"
+// fork: explicit Thrust includes (CCCL 2.x no longer provides these transitively)
+#include <thrust/device_vector.h>
 
 #include <vector>
 

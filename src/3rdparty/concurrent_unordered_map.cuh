@@ -27,6 +27,9 @@
 
 #include <thrust/pair.h>
 #include <thrust/count.h>
+// fork: CCCL 2.x (CUDA 12.x) no longer exposes thrust::device transitively via
+// <thrust/count.h>; include the header that owns the execution policies.
+#include <thrust/execution_policy.h>
 
 #include <functional>
 #include <memory>

@@ -25,6 +25,16 @@
  * of the code.
  */
 #include "coordinate_map_functors.cuh"
+// fork: explicit Thrust includes (CCCL 2.x no longer provides these transitively)
+// fork p08: explicit thrust tuple/zip_iterator (transitive-only under CCCL 2.x)
+#include <thrust/tuple.h>
+#include <thrust/iterator/zip_iterator.h>
+#include <thrust/for_each.h>
+#include <thrust/remove.h>
+#include <thrust/scan.h>
+#include <thrust/sequence.h>
+#include <thrust/transform.h>
+#include <thrust/unique.h>
 #include "coordinate_map_gpu.cuh"
 #include "gpu.cuh"
 #include "kernel_map.cuh"

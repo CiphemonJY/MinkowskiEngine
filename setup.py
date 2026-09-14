@@ -120,7 +120,12 @@ def _argparse(pattern, argv, is_flag=True, is_list=False):
 
 
 run_command("rm", "-rf", "build")
-run_command("pip", "uninstall", "MinkowskiEngine", "-y")
+# fork: use THIS interpreter's pip (venv-correct, PEP 668-safe) and never fail on a
+# missing prior install -- that is the normal first-build case.
+try:
+    run_command(sys.executable, "-m", "pip", "uninstall", "MinkowskiEngine", "-y")
+except Exception as e:
+    print("  [fork] skipping pre-uninstall: %s" % e)
 
 # For cpu only build
 CPU_ONLY, argv = _argparse("--cpu_only", argv)

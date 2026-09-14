@@ -26,6 +26,8 @@
 #define GPU_POOLING_MAX_KERNEL
 
 #include <limits>
+// fork: explicit Thrust includes (CCCL 2.x no longer provides these transitively)
+#include <thrust/sequence.h>
 
 #include <thrust/execution_policy.h>
 #include <thrust/fill.h>

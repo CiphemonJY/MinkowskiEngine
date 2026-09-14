@@ -28,6 +28,10 @@
 #define GPU_BROADCAST
 
 #include "allocators.cuh"
+// fork: explicit Thrust includes (CCCL 2.x no longer provides these transitively)
+#include <thrust/execution_policy.h>
+#include <thrust/fill.h>
+#include <thrust/sort.h>
 #include "broadcast_kernel.cuh"
 #include "math_functions.cuh"
 
